@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — NOIRE</title>
+  <link rel="stylesheet" href="auth.css"/>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- ── LEFT VISUAL PANEL ── -->
+  <div class="auth-panel-visual">
+    <div class="auth-grid-bg"></div>
+    <a href="index.html" class="auth-logo">N O I R E</a>
+
+    <div class="auth-panel-content">
+      <p class="auth-panel-quote">
+        "Every great wardrobe begins with a<br/>
+        single <em>deliberate choice</em>."
+      </p>
+      <p class="auth-panel-subtext">12,000+ clients — 48 countries — 7 years of craft</p>
+    </div>
+
+    <div class="auth-panel-bottom">
+      <div class="panel-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Secured with JWT Encryption
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <div class="auth-panel-form">
+    <div class="auth-form-wrap">
+      <div class="auth-form-header">
+        <span class="auth-eyebrow">— Welcome Back —</span>
+        <h1 class="auth-title">Sign <em>In</em></h1>
+        <p class="auth-subtitle">Access your NOIRE account and continue your journey.</p>
+      </div>
+
+      <div class="alert alert-error" id="alert-error" role="alert"></div>
+      <div class="alert alert-success" id="alert-success" role="status"></div>
+
+      <form class="form" id="login-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-input" type="email" id="email" name="email"
+                 placeholder="your@email.com" autocomplete="email"/>
+          <span class="form-error" id="email-error"></span>
+        </div>
+
+        <div class="form-group">
+          <div class="auth-link-row" style="margin-bottom:7px;">
+            <label class="form-label" for="password" style="margin:0">Password</label>
+            <a href="forgot-password.html" class="form-link">Forgot password?</a>
+          </div>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="password" name="password"
+                   placeholder="••••••••" autocomplete="current-password"/>
+            <button type="button" class="toggle-password" aria-label="Toggle password visibility" tabindex="-1">
+              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="form-error" id="password-error"></span>
+        </div>
+
+        <button type="submit" class="btn-auth" id="submit-btn">
+          <span id="btn-text">Sign In</span>
+          <div class="btn-loader-spin" id="btn-loader"></div>
+        </button>
+      </form>
+
+      <div class="form-divider" style="margin-top:24px;"><span>OR</span></div>
+
+      <div class="auth-switch">
+        Don't have an account? <a href="signup.html">Create one →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   LOGIN PAGE SCRIPT
+═══════════════════════════════════════ */
+
+const API = 'https://noire-backend-i2bq.onrender.com/';
+
+/* ── Redirect if already logged in ─────────────────────────── */
+(function checkAuth() {
+  const token = localStorage.getItem('noire_token');
+  const user  = JSON.parse(localStorage.getItem('noire_user') || 'null');
+  if (token && user) {
+    window.location.href = user.role === 'admin' ? '/admin.html' : '/dashboard.html';
+  }
+})();
+
+/* ── Elements ───────────────────────────────────────────────── */
+const form        = document.getElementById('login-form');
+const emailInput  = document.getElementById('email');
+const passInput   = document.getElementById('password');
+const submitBtn   = document.getElementById('submit-btn');
+const btnText     = document.getElementById('btn-text');
+const btnLoader   = document.getElementById('btn-loader');
+const alertError  = document.getElementById('alert-error');
+const alertSuccess= document.getElementById('alert-success');
+const eyeIcon     = document.getElementById('eye-icon');
+
+/* ── Show/hide alert ────────────────────────────────────────── */
+function showAlert(el, msg) {
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+function hideAlerts() {
+  alertError.classList.remove('show');
+  alertSuccess.classList.remove('show');
+}
+
+/* ── Field error helpers ────────────────────────────────────── */
+function setError(inputEl, errId, msg) {
+  inputEl.classList.toggle('error', !!msg);
+  document.getElementById(errId).textContent = msg || '';
+}
+
+/* ── Toggle password visibility ─────────────────────────────── */
+document.querySelector('.toggle-password').addEventListener('click', () => {
+  const isText = passInput.type === 'text';
+  passInput.type = isText ? 'password' : 'text';
+  eyeIcon.innerHTML = isText
+    ? `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`
+    : `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>`;
+});
+
+/* ── Form submission ─────────────────────────────────────────── */
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlerts();
+
+  const email    = emailInput.value.trim();
+  const password = passInput.value;
+  let valid = true;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setError(emailInput, 'email-error', 'Please enter a valid email address');
+    valid = false;
+  } else {
+    setError(emailInput, 'email-error', '');
+  }
+
+  if (!password) {
+    setError(passInput, 'password-error', 'Password is required');
+    valid = false;
+  } else {
+    setError(passInput, 'password-error', '');
+  }
+
+  if (!valid) return;
+
+  // Loading state
+  submitBtn.disabled = true;
+  btnText.textContent = 'Signing In...';
+  btnLoader.classList.add('show');
+
+  try {
+    const res  = await fetch(`${API}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert(alertError, data.error || 'Login failed. Please try again.');
+      return;
+    }
+
+    // Store token & user
+    localStorage.setItem('noire_token', data.token);
+    localStorage.setItem('noire_user', JSON.stringify(data.user));
+
+    showAlert(alertSuccess, `Welcome back, ${data.user.name}! Redirecting...`);
+
+    setTimeout(() => {
+      window.location.href = data.user.role === 'admin' ? '/admin.html' : '/dashboard.html';
+    }, 900);
+
+  } catch (err) {
+    showAlert(alertError, 'Network error. Please check your connection.');
+  } finally {
+    submitBtn.disabled = false;
+    btnText.textContent = 'Sign In';
+    btnLoader.classList.remove('show');
+  }
+});
+
+/* ── Live validation ─────────────────────────────────────────── */
+emailInput.addEventListener('blur', () => {
+  const v = emailInput.value.trim();
+  setError(emailInput, 'email-error',
+    !v ? 'Email is required' :
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Enter a valid email' : '');
+});
+
+// Pre-fill email from URL param (used after signup redirect)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('email')) {
+  emailInput.value = decodeURIComponent(urlParams.get('email'));
+}
+if (urlParams.get('msg') === 'reset') {
+  showAlert(alertSuccess, 'Password reset successfully. Please sign in.');
+}
+</script>
+</body>
+</html>

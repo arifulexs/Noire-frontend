@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — NOIRE</title>
+  <link rel="stylesheet" href="auth.css"/>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- ── LEFT VISUAL PANEL ── -->
+  <div class="auth-panel-visual">
+    <div class="auth-grid-bg"></div>
+    <a href="index.html" class="auth-logo">N O I R E</a>
+
+    <div class="auth-panel-content">
+      <p class="auth-panel-quote">
+        "Join a community that dresses<br/>
+        with <em>intention</em> and wears<br/>
+        its identity proudly."
+      </p>
+      <p class="auth-panel-subtext">Exclusive drops · Custom orders · Priority access</p>
+    </div>
+
+    <div class="auth-panel-bottom">
+      <div class="panel-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        Your data is never sold or shared
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <div class="auth-panel-form">
+    <div class="auth-form-wrap">
+      <div class="auth-form-header">
+        <span class="auth-eyebrow">— Join NOIRE —</span>
+        <h1 class="auth-title">Create <em>Account</em></h1>
+        <p class="auth-subtitle">Begin your NOIRE journey. Free forever.</p>
+      </div>
+
+      <div class="alert alert-error" id="alert-error" role="alert"></div>
+      <div class="alert alert-success" id="alert-success" role="status"></div>
+
+      <form class="form" id="signup-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name</label>
+          <input class="form-input" type="text" id="name" name="name"
+                 placeholder="Your name" autocomplete="name"/>
+          <span class="form-error" id="name-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-input" type="email" id="email" name="email"
+                 placeholder="your@email.com" autocomplete="email"/>
+          <span class="form-error" id="email-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="password" name="password"
+                   placeholder="Min. 8 characters" autocomplete="new-password"/>
+            <button type="button" class="toggle-password" aria-label="Toggle password" tabindex="-1">
+              <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Password strength meter -->
+          <div class="strength-meter">
+            <div class="strength-bar">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <span class="strength-text" id="strength-text"></span>
+          </div>
+          <span class="form-error" id="password-error"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm">Confirm Password</label>
+          <input class="form-input" type="password" id="confirm" name="confirm"
+                 placeholder="Re-enter password" autocomplete="new-password"/>
+          <span class="form-error" id="confirm-error"></span>
+        </div>
+
+        <button type="submit" class="btn-auth" id="submit-btn">
+          <span id="btn-text">Create My Account</span>
+          <div class="btn-loader-spin" id="btn-loader"></div>
+        </button>
+      </form>
+
+      <div class="auth-switch" style="margin-top:28px;">
+        Already have an account? <a href="login.html">Sign in →</a>
+      </div>
+
+      <p style="font-size:11px;color:var(--gray-mid);text-align:center;margin-top:16px;line-height:1.6;">
+        By creating an account, you agree to NOIRE's<br/>
+        Terms of Service and Privacy Policy.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   SIGNUP PAGE SCRIPT
+═══════════════════════════════════════ */
+
+const API = 'https://noire-backend-i2bq.onrender.com/';
+
+/* ── Redirect if already logged in ─────────────────────────── */
+(function checkAuth() {
+  const token = localStorage.getItem('noire_token');
+  const user  = JSON.parse(localStorage.getItem('noire_user') || 'null');
+  if (token && user) {
+    window.location.href = user.role === 'admin' ? '/admin.html' : '/dashboard.html';
+  }
+})();
+
+/* ── Elements ───────────────────────────────────────────────── */
+const form           = document.getElementById('signup-form');
+const nameInput      = document.getElementById('name');
+const emailInput     = document.getElementById('email');
+const passInput      = document.getElementById('password');
+const confirmInput   = document.getElementById('confirm');
+const submitBtn      = document.getElementById('submit-btn');
+const btnText        = document.getElementById('btn-text');
+const btnLoader      = document.getElementById('btn-loader');
+const alertError     = document.getElementById('alert-error');
+const alertSuccess   = document.getElementById('alert-success');
+const strengthFill   = document.getElementById('strength-fill');
+const strengthText   = document.getElementById('strength-text');
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+function showAlert(el, msg) {
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 8000);
+}
+function hideAlerts() {
+  alertError.classList.remove('show');
+  alertSuccess.classList.remove('show');
+}
+
+/* ── Field error ─────────────────────────────────────────────── */
+function setError(inputEl, errId, msg) {
+  inputEl.classList.toggle('error', !!msg);
+  document.getElementById(errId).textContent = msg || '';
+  return !msg;
+}
+
+/* ── Password strength ─────────────────────────────────────── */
+passInput.addEventListener('input', () => {
+  const val = passInput.value;
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const configs = [
+    { width: '0%',   color: 'transparent', label: '' },
+    { width: '25%',  color: '#d46e6e',     label: 'Weak' },
+    { width: '50%',  color: '#e8a84c',     label: 'Fair' },
+    { width: '75%',  color: '#c9d44c',     label: 'Good' },
+    { width: '100%', color: '#7ec98b',     label: 'Strong' },
+  ];
+  const cfg = configs[score] || configs[0];
+  strengthFill.style.width    = cfg.width;
+  strengthFill.style.background = cfg.color;
+  strengthText.textContent    = cfg.label;
+  strengthText.style.color    = cfg.color;
+});
+
+/* ── Toggle password ────────────────────────────────────────── */
+document.querySelector('.toggle-password').addEventListener('click', () => {
+  const isText = passInput.type === 'text';
+  passInput.type = isText ? 'password' : 'text';
+});
+
+/* ── Validation ─────────────────────────────────────────────── */
+function validateAll() {
+  const name  = nameInput.value.trim();
+  const email = emailInput.value.trim();
+  const pass  = passInput.value;
+  const conf  = confirmInput.value;
+  let ok = true;
+
+  ok = setError(nameInput, 'name-error',
+    !name ? 'Full name is required' :
+    name.length < 2 ? 'Must be at least 2 characters' : '') && ok;
+
+  ok = setError(emailInput, 'email-error',
+    !email ? 'Email is required' :
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'Enter a valid email' : '') && ok;
+
+  ok = setError(passInput, 'password-error',
+    !pass ? 'Password is required' :
+    pass.length < 8 ? 'Must be at least 8 characters' : '') && ok;
+
+  ok = setError(confirmInput, 'confirm-error',
+    !conf ? 'Please confirm your password' :
+    conf !== pass ? 'Passwords do not match' : '') && ok;
+
+  return ok;
+}
+
+/* ── Submit ─────────────────────────────────────────────────── */
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideAlerts();
+  if (!validateAll()) return;
+
+  submitBtn.disabled = true;
+  btnText.textContent = 'Creating Account...';
+  btnLoader.classList.add('show');
+
+  try {
+    const res  = await fetch(`${API}/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:     nameInput.value.trim(),
+        email:    emailInput.value.trim(),
+        password: passInput.value,
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert(alertError, data.error || 'Signup failed. Please try again.');
+      return;
+    }
+
+    localStorage.setItem('noire_token', data.token);
+    localStorage.setItem('noire_user', JSON.stringify(data.user));
+    showAlert(alertSuccess, `Welcome to NOIRE, ${data.user.name}! Redirecting...`);
+
+    setTimeout(() => {
+      window.location.href = '/dashboard.html';
+    }, 1000);
+
+  } catch (err) {
+    showAlert(alertError, 'Network error. Please check your connection.');
+  } finally {
+    submitBtn.disabled = false;
+    btnText.textContent = 'Create My Account';
+    btnLoader.classList.remove('show');
+  }
+});
+
+/* ── Inline live validation ──────────────────────────────────── */
+nameInput.addEventListener('blur', () => {
+  const v = nameInput.value.trim();
+  setError(nameInput, 'name-error', v.length < 2 ? 'At least 2 characters' : '');
+});
+emailInput.addEventListener('blur', () => {
+  const v = emailInput.value.trim();
+  setError(emailInput, 'email-error',
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Enter a valid email' : '');
+});
+confirmInput.addEventListener('blur', () => {
+  setError(confirmInput, 'confirm-error',
+    confirmInput.value !== passInput.value ? 'Passwords do not match' : '');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Account — NOIRE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+:root{
+  --black:#0a0a0a;--black-2:#111;--black-3:#1a1a1a;
+  --gray-dark:#222;--gray-mid:#3a3a3a;--gray-light:#8a8a8a;
+  --white:#f5f5f0;--white-2:#e8e8e0;
+  --gold:#c9a84c;--gold-light:#e8c878;--gold-dark:#a07830;
+  --font-serif:'Playfair Display',serif;--font-sans:'DM Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;font-size:15px;}
+body{background:var(--black);color:var(--white);font-family:var(--font-sans);font-weight:300;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+::selection{background:var(--gold);color:#000;}
+
+/* NAV */
+.navbar{position:sticky;top:0;z-index:100;height:64px;background:rgba(10,10,10,.97);border-bottom:1px solid var(--gray-dark);backdrop-filter:blur(20px);}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 40px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:var(--font-serif);font-size:17px;letter-spacing:.4em;color:var(--white);transition:color .2s;}
+.nav-logo:hover{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:20px;}
+.nav-name{font-size:13px;color:var(--gray-light);}
+.btn-nav{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray-light);background:none;border:1px solid var(--gray-dark);padding:7px 14px;cursor:pointer;transition:border-color .2s,color .2s;}
+.btn-nav:hover{border-color:var(--gold);color:var(--gold);}
+.btn-nav.primary{background:var(--gold);color:#000;border-color:var(--gold);}
+.btn-nav.primary:hover{background:var(--gold-light);}
+
+/* LAYOUT */
+.dash{max-width:1200px;margin:0 auto;padding:48px 40px 80px;}
+
+/* HEADER */
+.dash-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px;}
+.dash-eyebrow{display:block;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.dash-title{font-family:var(--font-serif);font-size:clamp(28px,4vw,44px);font-weight:500;}
+.dash-title em{font-style:italic;color:var(--gold);}
+
+/* STAT CARDS */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;}
+.stat-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:22px;transition:border-color .25s;}
+.stat-card:hover{border-color:rgba(201,168,76,.3);}
+.stat-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-light);margin-bottom:9px;}
+.stat-value{font-family:var(--font-serif);font-size:28px;font-weight:600;color:var(--gold);}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:1px solid var(--gray-dark);margin-bottom:32px;overflow-x:auto;gap:0;}
+.tab-btn{padding:13px 22px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gray-light);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;margin-bottom:-1px;display:flex;align-items:center;gap:7px;}
+.tab-btn.active{color:var(--white);border-bottom-color:var(--gold);}
+.tab-badge{background:var(--gold);color:#000;font-size:9px;font-weight:600;min-width:16px;height:16px;border-radius:8px;padding:0 4px;display:flex;align-items:center;justify-content:center;}
+.tab-section{display:none;}
+.tab-section.active{display:block;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-light);padding:11px 14px;border-bottom:1px solid var(--gray-dark);font-weight:400;}
+td{padding:14px;border-bottom:1px solid rgba(34,34,34,.6);color:var(--white-2);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.015);}
+.td-name{font-weight:500;color:var(--white);}
+.td-gold{color:var(--gold);font-family:var(--font-serif);}
+.td-muted{color:var(--gray-light);font-size:12px;}
+
+/* STATUS PILLS */
+.pill{display:inline-block;padding:3px 9px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;}
+.pill-pending{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+.pill-processing{background:rgba(76,142,201,.1);color:#a0c0f0;border:1px solid rgba(76,142,201,.2);}
+.pill-shipped{background:rgba(142,108,201,.1);color:#c0a0f0;border:1px solid rgba(142,108,201,.2);}
+.pill-delivered{background:rgba(93,184,116,.1);color:#9edcad;border:1px solid rgba(93,184,116,.2);}
+.pill-cancelled{background:rgba(201,94,94,.1);color:#e8a0a0;border:1px solid rgba(201,94,94,.2);}
+.pill-reviewing{background:rgba(76,142,201,.1);color:#a0c0f0;border:1px solid rgba(76,142,201,.2);}
+.pill-quoted{background:rgba(201,168,76,.15);color:var(--gold-light);border:1px solid rgba(201,168,76,.3);}
+.pill-accepted{background:rgba(93,184,116,.12);color:#9edcad;border:1px solid rgba(93,184,116,.25);}
+.pill-in_production{background:rgba(142,108,201,.12);color:#c0a0f0;border:1px solid rgba(142,108,201,.25);}
+.pill-completed{background:rgba(93,184,116,.15);color:#7edcad;border:1px solid rgba(93,184,116,.3);}
+
+/* WISHLIST GRID */
+.wishlist-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.wish-card{background:var(--black-2);border:1px solid var(--gray-dark);transition:border-color .25s,transform .25s;}
+.wish-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-3px);}
+.wish-img{aspect-ratio:3/4;overflow:hidden;}
+.wish-img img{width:100%;height:100%;object-fit:cover;}
+.wish-img-placeholder{width:100%;height:100%;background:linear-gradient(140deg,#1a1a1a,#0e0e0e);}
+.wish-info{padding:14px;}
+.wish-name{font-family:var(--font-serif);font-size:14px;font-weight:500;color:var(--white);margin-bottom:6px;}
+.wish-price{color:var(--gold);font-family:var(--font-serif);font-size:15px;margin-bottom:10px;}
+.wish-actions{display:flex;gap:8px;}
+.btn-wish-cart{flex:1;padding:9px;background:var(--gold);color:#000;border:none;font-size:10px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);transition:background .2s;}
+.btn-wish-cart:hover{background:var(--gold-light);}
+.btn-wish-remove{width:36px;height:36px;background:none;border:1px solid var(--gray-dark);color:var(--gray-light);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s;}
+.btn-wish-remove:hover{border-color:#c95e5e;color:#e8a0a0;}
+
+/* CUSTOM ORDERS */
+.custom-order-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:22px;margin-bottom:16px;transition:border-color .25s;}
+.custom-order-card:hover{border-color:rgba(201,168,76,.25);}
+.co-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.co-title{font-family:var(--font-serif);font-size:16px;font-weight:500;}
+.co-body{font-size:13px;color:var(--gray-light);line-height:1.7;margin-bottom:14px;}
+.co-images{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.co-img{width:60px;height:70px;object-fit:cover;border:1px solid var(--gray-dark);cursor:zoom-in;}
+.co-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.co-quoted{font-family:var(--font-serif);font-size:17px;color:var(--gold);}
+.co-admin-note{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);padding:12px 14px;font-size:13px;color:var(--white-2);margin-top:12px;line-height:1.6;}
+.co-admin-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.btn-message{font-size:11px;letter-spacing:.15em;text-transform:uppercase;padding:8px 16px;border:1px solid rgba(201,168,76,.35);color:var(--gold);background:none;cursor:pointer;transition:background .2s,color .2s;}
+.btn-message:hover{background:var(--gold);color:#000;}
+
+/* MESSAGES */
+.conv-list-dash{display:flex;flex-direction:column;gap:12px;}
+.conv-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .25s,background .2s;text-decoration:none;color:inherit;}
+.conv-card:hover{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.03);}
+.conv-subject{font-size:14px;font-weight:500;color:var(--white);margin-bottom:4px;}
+.conv-preview{font-size:12px;color:var(--gray-light);}
+.conv-time{font-size:11px;color:var(--gray-light);text-align:right;flex-shrink:0;margin-left:20px;}
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+
+/* REVIEWS */
+.review-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:20px;margin-bottom:14px;}
+.review-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:8px;}
+.review-title{font-size:14px;font-weight:500;color:var(--white);margin-bottom:5px;}
+.review-body{font-size:13px;color:var(--gray-light);line-height:1.7;margin-bottom:8px;}
+.review-product{font-size:11px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;}
+.review-date{font-size:11px;color:var(--gray-mid);}
+
+/* REVIEW FORM */
+.review-form-wrap{background:var(--black-2);border:1px solid rgba(201,168,76,.2);padding:28px;margin-bottom:28px;}
+.review-form-title{font-family:var(--font-serif);font-size:18px;font-weight:500;margin-bottom:20px;}
+.star-picker{display:flex;gap:6px;margin-bottom:8px;}
+.star-btn{font-size:24px;cursor:pointer;color:var(--gray-dark);transition:color .15s;background:none;border:none;padding:2px;}
+.star-btn.active{color:var(--gold);}
+.rf-field{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.rf-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-light);}
+.rf-input{background:var(--black-3);border:1px solid var(--gray-dark);color:var(--white);padding:12px 14px;font-size:14px;font-family:var(--font-sans);outline:none;transition:border-color .2s;width:100%;}
+.rf-input:focus{border-color:var(--gold);}
+.rf-select{-webkit-appearance:none;}
+.rf-textarea{resize:vertical;min-height:90px;}
+.btn-submit-review{padding:12px 28px;background:var(--gold);color:#000;border:none;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);transition:background .2s;}
+.btn-submit-review:hover{background:var(--gold-light);}
+.btn-submit-review:disabled{opacity:.5;cursor:not-allowed;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--gray-light);font-size:13px;}
+.empty-state a{color:var(--gold);}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:60px;gap:12px;color:var(--gray-light);}
+.spin{width:22px;height:22px;border:2px solid var(--gray-dark);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:#111;border:1px solid rgba(201,168,76,.35);color:var(--white);padding:13px 20px;font-size:13px;z-index:999;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ALERT */
+.alert{padding:13px 16px;font-size:13px;margin-bottom:16px;display:none;}
+.alert.show{display:block;}
+.alert-success{background:rgba(93,184,116,.1);border:1px solid rgba(93,184,116,.3);color:#9edcad;}
+.alert-error{background:rgba(201,94,94,.1);border:1px solid rgba(201,94,94,.3);color:#e8a0a0;}
+
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+.profile-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:28px;}
+.profile-card-title{font-family:var(--font-serif);font-size:16px;font-weight:500;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--gray-dark);}
+.profile-field{margin-bottom:16px;}
+.profile-field-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--gray-light);margin-bottom:6px;}
+.profile-field-value{font-size:15px;color:var(--white);}
+.profile-input{background:var(--black-3);border:1px solid var(--gray-dark);color:var(--white);padding:11px 13px;font-size:14px;font-family:var(--font-sans);outline:none;transition:border-color .2s;width:100%;}
+.profile-input:focus{border-color:var(--gold);}
+.btn-save{padding:11px 24px;background:var(--gold);color:#000;border:none;font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-family:var(--font-sans);margin-top:8px;}
+
+@media(max-width:900px){
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .wishlist-grid{grid-template-columns:1fr 1fr;}
+  .profile-grid{grid-template-columns:1fr;}
+  .dash{padding:32px 20px 60px;}
+  .nav-inner{padding:0 20px;}
+}
+@media(max-width:500px){
+  .stat-row{grid-template-columns:1fr 1fr;}
+  .wishlist-grid{grid-template-columns:1fr;}
+  .tab-btn{padding:10px 14px;font-size:10px;}
+}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">N O I R E</a>
+    <div class="nav-right">
+      <span class="nav-name" id="nav-name">—</span>
+      <a href="/collection.html" class="btn-nav">Shop</a>
+      <button class="btn-nav" id="btn-logout">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<div class="dash" id="loading-wrap">
+  <div class="loading"><div class="spin"></div> Loading your account…</div>
+</div>
+
+<div class="dash" id="dash-content" style="display:none;">
+  <div class="dash-header">
+    <div>
+      <span class="dash-eyebrow">— My Account —</span>
+      <h1 class="dash-title">Welcome, <em id="user-first-name">—</em></h1>
+    </div>
+    <a href="/custom-order.html" class="btn-nav primary">+ Custom Order</a>
+  </div>
+
+  <!-- STATS -->
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="s-orders">0</div></div>
+    <div class="stat-card"><div class="stat-label">Total Spent</div><div class="stat-value" id="s-spent">$0</div></div>
+    <div class="stat-card"><div class="stat-label">Wishlist</div><div class="stat-value" id="s-wish">0</div></div>
+    <div class="stat-card"><div class="stat-label">Custom Designs</div><div class="stat-value" id="s-custom">0</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="orders">Orders</button>
+    <button class="tab-btn" data-tab="wishlist">Wishlist</button>
+    <button class="tab-btn" data-tab="custom">Custom Orders</button>
+    <button class="tab-btn" data-tab="messages">Messages <span class="tab-badge" id="msg-badge" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="reviews">Reviews</button>
+    <button class="tab-btn" data-tab="profile">Profile</button>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div class="tab-section active" id="tab-orders">
+    <div id="orders-content"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+
+  <!-- WISHLIST TAB -->
+  <div class="tab-section" id="tab-wishlist">
+    <div id="wishlist-content"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+
+  <!-- CUSTOM ORDERS TAB -->
+  <div class="tab-section" id="tab-custom">
+    <div id="custom-content"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+
+  <!-- MESSAGES TAB -->
+  <div class="tab-section" id="tab-messages">
+    <div style="margin-bottom:20px;display:flex;justify-content:flex-end;">
+      <a href="/messages.html" class="btn-nav primary" style="text-decoration:none;">Open Full Chat →</a>
+    </div>
+    <div id="messages-content"><div class="loading"><div class="spin"></div></div></div>
+  </div>
+
+  <!-- REVIEWS TAB -->
+  <div class="tab-section" id="tab-reviews">
+    <div id="reviews-content"></div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div class="tab-section" id="tab-profile">
+    <div class="profile-grid">
+      <div class="profile-card">
+        <div class="profile-card-title">Account Information</div>
+        <div class="profile-field"><div class="profile-field-label">Full Name</div><div class="profile-field-value" id="prof-name">—</div></div>
+        <div class="profile-field"><div class="profile-field-label">Email Address</div><div class="profile-field-value" id="prof-email">—</div></div>
+        <div class="profile-field"><div class="profile-field-label">Member Since</div><div class="profile-field-value" id="prof-date">—</div></div>
+        <div class="profile-field"><div class="profile-field-label">Account Role</div><div class="profile-field-value" id="prof-role">—</div></div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">Update Name</div>
+        <div class="alert alert-success" id="profile-ok"></div>
+        <div class="alert alert-error" id="profile-err"></div>
+        <div class="profile-field">
+          <div class="profile-field-label">New Name</div>
+          <input type="text" class="profile-input" id="new-name" placeholder="Your full name" autocomplete="name"/>
+        </div>
+        <button class="btn-save" id="save-profile-btn">Save Changes</button>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-dark);">
+          <div class="profile-card-title" style="font-size:14px;margin-bottom:14px;">Quick Links</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <a href="/messages.html" style="font-size:13px;color:var(--gold);">💬 Open Messages →</a>
+            <a href="/custom-order.html" style="font-size:13px;color:var(--gold);">✦ New Custom Design →</a>
+            <a href="/collection.html" style="font-size:13px;color:var(--gold);">👕 Browse Collection →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API   = 'https://noire-backend-i2bq.onrender.com/';
+const token = localStorage.getItem('noire_token');
+const user  = JSON.parse(localStorage.getItem('noire_user') || 'null');
+
+if (!token || !user) window.location.href = '/login.html';
+
+document.getElementById('nav-name').textContent = user?.name?.split(' ')[0] || 'Account';
+document.getElementById('btn-logout').addEventListener('click', () => {
+  localStorage.clear(); window.location.href = '/login.html';
+});
+
+/* ── Helpers ──────────────────────────────────────────────────── */
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+async function af(url, opts = {}) {
+  const r = await fetch(url, {
+    ...opts,
+    headers: { 'Content-Type':'application/json', Authorization:`Bearer ${token}`, ...(opts.headers||{}) },
+  });
+  if (r.status === 401) { localStorage.clear(); window.location.href = '/login.html'; }
+  return r.json();
+}
+
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+function fmtTime(d) {
+  const dt = new Date(d), now = new Date(), diff = now - dt;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff/60000)+'m ago';
+  if (dt.toDateString() === now.toDateString()) return dt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  return fmtDate(d);
+}
+function pill(s) { return `<span class="pill pill-${s}">${s.replace('_',' ')}</span>`; }
+function stars(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+/* ── Cart ──────────────────────────────────────────────────── */
+const Cart = {
+  _k:'noire_cart', items: JSON.parse(localStorage.getItem('noire_cart')||'[]'),
+  save() { localStorage.setItem(this._k, JSON.stringify(this.items)); },
+  add(p) {
+    const e = this.items.find(i=>i.id===String(p.id));
+    if(e) e.qty++; else this.items.push({id:String(p.id),name:p.name,price:p.price,image_url:p.image_url||'',qty:1});
+    this.save();
+  }
+};
+
+/* ── Load all data ──────────────────────────────────────────── */
+async function loadAll() {
+  const [profileData, ordersData, wishData, customData, convData, reviewData] = await Promise.all([
+    af(`${API}/users/profile`),
+    af(`${API}/users/orders`),
+    af(`${API}/wishlist`),
+    af(`${API}/custom-orders`),
+    af(`${API}/messages/conversations`),
+    af(`${API}/reviews/mine`),
+  ]);
+
+  const profile = profileData.user || {};
+  const orders  = ordersData.orders || [];
+  const wish    = wishData.items || [];
+  const customs = customData.orders || [];
+  const convs   = convData.conversations || [];
+  const reviews = reviewData.reviews || [];
+
+  // Unread messages
+  const unread = convs.reduce((s,c) => s + (c.unread_count||0), 0);
+  if (unread > 0) {
+    const badge = document.getElementById('msg-badge');
+    badge.textContent = unread; badge.style.display = 'flex';
+  }
+
+  // Stats
+  document.getElementById('user-first-name').textContent = profile.name?.split(' ')[0] || '—';
+  document.getElementById('s-orders').textContent = orders.length;
+  document.getElementById('s-spent').textContent  = '$' + orders.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+o.total,0).toFixed(0);
+  document.getElementById('s-wish').textContent   = wish.length;
+  document.getElementById('s-custom').textContent = customs.length;
+
+  // Profile tab
+  document.getElementById('prof-name').textContent  = profile.name || '—';
+  document.getElementById('prof-email').textContent = profile.email || '—';
+  document.getElementById('prof-date').textContent  = profile.created_at ? fmtDate(profile.created_at) : '—';
+  document.getElementById('prof-role').textContent  = profile.role || '—';
+  document.getElementById('new-name').value         = profile.name || '';
+
+  renderOrders(orders);
+  renderWishlist(wish);
+  renderCustomOrders(customs);
+  renderMessages(convs);
+  renderReviews(reviews, orders);
+
+  document.getElementById('loading-wrap').style.display  = 'none';
+  document.getElementById('dash-content').style.display  = 'block';
+}
+
+/* ── ORDERS ─────────────────────────────────────────────────── */
+function renderOrders(orders) {
+  const el = document.getElementById('orders-content');
+  if (!orders.length) {
+    el.innerHTML = `<div class="empty-state">No orders yet. <a href="/collection.html">Browse the collection →</a></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+          ${orders.map(o=>`
+            <tr>
+              <td class="td-gold">#${o.id}</td>
+              <td class="td-muted">${fmtDate(o.created_at)}</td>
+              <td>${(o.items||[]).map(i=>`${i.product_name} ×${i.quantity}`).join(', ')||'—'}</td>
+              <td class="td-name">$${o.total.toFixed(2)}</td>
+              <td>${pill(o.status)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+/* ── WISHLIST ────────────────────────────────────────────────── */
+function renderWishlist(items) {
+  const el = document.getElementById('wishlist-content');
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state">Your wishlist is empty. <a href="/collection.html">Discover pieces →</a></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="wishlist-grid">${items.map(i=>`
+    <div class="wish-card" id="wish-${i.product_id}">
+      <div class="wish-img">
+        ${i.image_url ? `<img src="${i.image_url}" alt="${i.name}" loading="lazy"/>` : `<div class="wish-img-placeholder"></div>`}
+      </div>
+      <div class="wish-info">
+        <div class="wish-name">${i.name}</div>
+        <div class="wish-price">$${i.price.toFixed(0)}</div>
+        <div class="wish-actions">
+          <button class="btn-wish-cart" onclick="addToCart(${JSON.stringify(i).replace(/"/g,'&quot;')})">Add to Cart</button>
+          <button class="btn-wish-remove" onclick="removeWish(${i.product_id})" title="Remove">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function addToCart(product) {
+  Cart.add(product); toast(`"${product.name}" added to cart ✓`);
+}
+
+async function removeWish(productId) {
+  await fetch(`${API}/wishlist/${productId}`, { method:'DELETE', headers:{Authorization:`Bearer ${token}`} });
+  document.getElementById(`wish-${productId}`)?.remove();
+  toast('Removed from wishlist');
+}
+
+/* ── CUSTOM ORDERS ───────────────────────────────────────────── */
+function renderCustomOrders(orders) {
+  const el = document.getElementById('custom-content');
+  if (!orders.length) {
+    el.innerHTML = `<div class="empty-state">No custom orders yet. <a href="/custom-order.html">Design your first piece →</a></div>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => `
+    <div class="custom-order-card">
+      <div class="co-head">
+        <div>
+          <div class="co-title">${o.category} Design Request <span style="color:var(--gray-light);font-size:13px;">#${o.id}</span></div>
+          <div class="td-muted" style="margin-top:4px;">${fmtDate(o.created_at)} · Qty: ${o.quantity}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${pill(o.status)}
+          ${o.quoted_price ? `<span class="co-quoted">$${o.quoted_price.toFixed(2)}</span>` : ''}
+        </div>
+      </div>
+      <div class="co-body">${o.description}</div>
+      ${(o.images||[]).length ? `
+        <div class="co-images">
+          ${o.images.map(img=>`<img class="co-img" src="/uploads/${img.image_path}" alt="${img.original_name||'ref'}" loading="lazy"/>`).join('')}
+        </div>` : ''}
+      ${o.admin_notes ? `
+        <div class="co-admin-note">
+          <div class="co-admin-label">Message from NOIRE Team</div>
+          ${o.admin_notes}
+        </div>` : ''}
+      <div class="co-footer">
+        ${o.budget ? `<span style="font-size:12px;color:var(--gray-light);">Budget: ${o.budget}</span>` : '<span></span>'}
+        <button class="btn-message" onclick="window.location.href='/messages.html'">View Messages</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ── MESSAGES ────────────────────────────────────────────────── */
+function renderMessages(convs) {
+  const el = document.getElementById('messages-content');
+  if (!convs.length) {
+    el.innerHTML = `<div class="empty-state">No messages yet. <a href="/messages.html">Start a conversation →</a></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="conv-list-dash">${convs.slice(0,5).map(c=>`
+    <a href="/messages.html?conv=${c.id}" class="conv-card">
+      <div style="flex:1;min-width:0;">
+        <div class="conv-subject">${c.subject}</div>
+        <div class="conv-preview">${c.custom_order_id ? '📦 Custom Order' : '💬 General Inquiry'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${c.unread_count > 0 ? `<span class="unread-dot"></span>` : ''}
+        <span class="conv-time">${fmtTime(c.last_message_at)}</span>
+      </div>
+    </a>`).join('')}
+    ${convs.length > 5 ? `<a href="/messages.html" style="text-align:center;padding:14px;font-size:12px;color:var(--gold);display:block;">View all ${convs.length} conversations →</a>` : ''}
+  </div>`;
+}
+
+/* ── REVIEWS ─────────────────────────────────────────────────── */
+function renderReviews(reviews, orders) {
+  const el = document.getElementById('reviews-content');
+
+  // Get products from delivered orders that haven't been reviewed
+  const reviewedProductIds = reviews.map(r => r.product_id);
+  const deliveredItems = [];
+  orders.filter(o => o.status === 'delivered').forEach(o => {
+    (o.items || []).forEach(item => {
+      if (item.product_id && !reviewedProductIds.includes(item.product_id)) {
+        deliveredItems.push({ product_id: item.product_id, product_name: item.product_name, order_id: o.id });
+      }
+    });
+  });
+
+  let html = '';
+
+  // Review form if there are unreviewed products
+  if (deliveredItems.length) {
+    html += `
+      <div class="review-form-wrap">
+        <div class="review-form-title">Leave a Review</div>
+        <div class="alert alert-success" id="rev-ok"></div>
+        <div class="alert alert-error" id="rev-err"></div>
+        <div class="rf-field">
+          <label class="rf-label">Product</label>
+          <select class="rf-input rf-select" id="rev-product">
+            ${deliveredItems.map(i=>`<option value="${i.product_id}" data-order="${i.order_id}">${i.product_name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="rf-field">
+          <label class="rf-label">Rating *</label>
+          <div class="star-picker" id="star-picker">
+            ${[1,2,3,4,5].map(n=>`<button type="button" class="star-btn" data-star="${n}">★</button>`).join('')}
+          </div>
+        </div>
+        <div class="rf-field">
+          <label class="rf-label">Review Title</label>
+          <input type="text" class="rf-input" id="rev-title" placeholder="Sum it up in a sentence"/>
+        </div>
+        <div class="rf-field">
+          <label class="rf-label">Your Review *</label>
+          <textarea class="rf-input rf-textarea" id="rev-content" placeholder="Tell us about the quality, fit, and your experience…"></textarea>
+        </div>
+        <button class="btn-submit-review" id="rev-submit-btn" onclick="submitReview()">Submit Review</button>
+      </div>`;
+  }
+
+  if (!reviews.length) {
+    html += `<div class="empty-state">No reviews yet. Reviews appear here after you submit them.</div>`;
+  } else {
+    html += reviews.map(r=>`
+      <div class="review-card">
+        <div class="review-stars">${stars(r.rating)}</div>
+        ${r.title ? `<div class="review-title">${r.title}</div>` : ''}
+        <div class="review-body">${r.content}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="review-product">${r.product_name}</span>
+          <span class="review-date">${fmtDate(r.created_at)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  el.innerHTML = html;
+
+  // Star picker logic
+  let selectedStar = 0;
+  document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedStar = parseInt(btn.dataset.star);
+      document.querySelectorAll('.star-btn').forEach((b, i) => b.classList.toggle('active', i < selectedStar));
+    });
+    btn.addEventListener('mouseover', () => {
+      const n = parseInt(btn.dataset.star);
+      document.querySelectorAll('.star-btn').forEach((b, i) => b.classList.toggle('active', i < n));
+    });
+    btn.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.star-btn').forEach((b, i) => b.classList.toggle('active', i < selectedStar));
+    });
+  });
+
+  window._selectedStar = () => selectedStar;
+  window._deliveredItems = deliveredItems;
+}
+
+async function submitReview() {
+  const rating  = window._selectedStar?.() || 0;
+  const content = document.getElementById('rev-content')?.value.trim();
+  const title   = document.getElementById('rev-title')?.value.trim();
+  const selEl   = document.getElementById('rev-product');
+  const productId = selEl?.value;
+  const orderId   = selEl?.selectedOptions[0]?.dataset.order;
+
+  const okEl  = document.getElementById('rev-ok');
+  const errEl = document.getElementById('rev-err');
+  [okEl, errEl].forEach(e => e?.classList.remove('show'));
+
+  if (!rating) { errEl.textContent = 'Please select a star rating.'; errEl.classList.add('show'); return; }
+  if (!content || content.length < 10) { errEl.textContent = 'Review must be at least 10 characters.'; errEl.classList.add('show'); return; }
+
+  const btn = document.getElementById('rev-submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const data = await af(`${API}/reviews`, {
+    method: 'POST',
+    body: JSON.stringify({ product_id: productId, order_id: orderId, rating, title, content }),
+  });
+
+  btn.disabled = false; btn.textContent = 'Submit Review';
+
+  if (data.message) {
+    okEl.textContent = data.message; okEl.classList.add('show');
+    document.getElementById('rev-content').value = '';
+    document.getElementById('rev-title').value = '';
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+  } else {
+    errEl.textContent = data.error || 'Failed.'; errEl.classList.add('show');
+  }
+}
+
+/* ── PROFILE SAVE ────────────────────────────────────────────── */
+document.getElementById('save-profile-btn').addEventListener('click', async () => {
+  const name = document.getElementById('new-name').value.trim();
+  const okEl = document.getElementById('profile-ok');
+  const errEl = document.getElementById('profile-err');
+  [okEl, errEl].forEach(e => e.classList.remove('show'));
+
+  if (name.length < 2) { errEl.textContent = 'Name must be at least 2 characters.'; errEl.classList.add('show'); return; }
+
+  const data = await af(`${API}/users/profile`, { method:'PUT', body: JSON.stringify({ name }) });
+  if (data.message) {
+    okEl.textContent = data.message; okEl.classList.add('show');
+    document.getElementById('prof-name').textContent = name;
+    document.getElementById('nav-name').textContent = name.split(' ')[0];
+    const storedUser = JSON.parse(localStorage.getItem('noire_user') || '{}');
+    storedUser.name = name;
+    localStorage.setItem('noire_user', JSON.stringify(storedUser));
+  } else {
+    errEl.textContent = data.error || 'Failed.'; errEl.classList.add('show');
+  }
+});
+
+/* ── TABS ─────────────────────────────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+  });
+});
+
+loadAll();
+</script>
+</body>
+</html>

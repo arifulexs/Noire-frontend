@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Design Your Piece — NOIRE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+:root{
+  --black:#0a0a0a;--black-2:#111;--black-3:#1a1a1a;
+  --gray-dark:#222;--gray-mid:#333;--gray-light:#888;
+  --white:#f5f5f0;--white-2:#e0e0d8;
+  --gold:#c9a84c;--gold-light:#e8c878;
+  --font-serif:'Playfair Display',serif;--font-sans:'DM Sans',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;}
+body{background:var(--black);color:var(--white);font-family:var(--font-sans);font-weight:300;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+::selection{background:var(--gold);color:#000;}
+
+.navbar{position:sticky;top:0;z-index:100;height:66px;background:rgba(10,10,10,.97);border-bottom:1px solid var(--gray-dark);backdrop-filter:blur(20px);}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 40px;height:100%;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:var(--font-serif);font-size:18px;letter-spacing:.4em;color:var(--white);}
+.nav-logo:hover{color:var(--gold);}
+.nav-back{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gray-light);display:flex;align-items:center;gap:6px;transition:color .2s;}
+.nav-back:hover{color:var(--gold);}
+
+.page-wrap{max-width:1100px;margin:0 auto;padding:60px 40px 80px;display:grid;grid-template-columns:1fr 440px;gap:60px;align-items:start;}
+
+/* LEFT FORM */
+.form-header{margin-bottom:44px;}
+.eyebrow{display:block;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.page-title{font-family:var(--font-serif);font-size:clamp(32px,5vw,52px);font-weight:500;line-height:1.1;margin-bottom:14px;}
+.page-title em{font-style:italic;color:var(--gold);}
+.page-subtitle{font-size:14px;color:var(--gray-light);line-height:1.75;}
+
+.form{display:flex;flex-direction:column;gap:22px;}
+.field{display:flex;flex-direction:column;gap:8px;}
+.field label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gray-light);}
+.field input,.field textarea,.field select{background:var(--black-2);border:1px solid var(--gray-dark);color:var(--white);padding:14px 16px;font-size:14px;font-family:var(--font-sans);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);}
+.field input.error,.field textarea.error,.field select.error{border-color:#d46e6e;}
+.field textarea{resize:vertical;min-height:120px;}
+.field select option{background:var(--black-3);}
+.field-error{font-size:11px;color:#d46e6e;min-height:14px;}
+.field-hint{font-size:11px;color:var(--gray-light);}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* CATEGORY PILLS */
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.cat-pill{border:1px solid var(--gray-dark);padding:12px 10px;text-align:center;cursor:pointer;font-size:12px;letter-spacing:.1em;color:var(--gray-light);transition:border-color .2s,color .2s,background .2s;user-select:none;}
+.cat-pill:hover{border-color:var(--gray-mid);color:var(--white-2);}
+.cat-pill.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.08);}
+.cat-pill .cat-icon{display:block;font-size:20px;margin-bottom:5px;}
+input[name="category"]{display:none;}
+
+/* IMAGE UPLOAD */
+.upload-zone{border:2px dashed var(--gray-dark);padding:32px;text-align:center;cursor:pointer;transition:border-color .25s,background .25s;position:relative;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--gold);background:rgba(201,168,76,.04);}
+.upload-zone-icon{color:var(--gray-light);margin:0 auto 12px;}
+.upload-zone-text{font-size:14px;color:var(--gray-light);margin-bottom:6px;}
+.upload-zone-hint{font-size:11px;color:var(--gray-mid);}
+.upload-zone-btn{display:inline-block;margin-top:12px;padding:9px 20px;border:1px solid var(--gray-mid);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--white-2);cursor:pointer;transition:border-color .2s,color .2s;}
+.upload-zone-btn:hover{border-color:var(--gold);color:var(--gold);}
+#file-input{display:none;}
+
+.preview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px;}
+.preview-item{position:relative;aspect-ratio:1;background:var(--black-3);border:1px solid var(--gray-dark);overflow:hidden;}
+.preview-item img{width:100%;height:100%;object-fit:cover;}
+.preview-remove{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(10,10,10,.85);border:none;color:var(--white);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.preview-remove:hover{background:rgba(200,80,80,.8);}
+.upload-counter{font-size:11px;color:var(--gray-light);margin-top:8px;text-align:center;}
+
+/* SUBMIT */
+.btn-submit{width:100%;padding:18px;background:var(--gold);color:#000;border:none;font-family:var(--font-sans);font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;position:relative;overflow:hidden;}
+.btn-submit::before{content:'';position:absolute;inset:0;background:var(--white);transform:translateX(-100%);transition:transform .4s cubic-bezier(.25,.1,.25,1);}
+.btn-submit:hover::before{transform:translateX(0);}
+.btn-submit span,.btn-submit svg{position:relative;z-index:1;}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;}
+.spin{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite;display:none;}
+.spin.show{display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SUCCESS */
+.success-wrap{display:none;text-align:center;padding:50px 0;}
+.success-icon{font-size:54px;margin-bottom:20px;}
+.success-title{font-family:var(--font-serif);font-size:30px;font-weight:500;color:var(--gold);margin-bottom:12px;}
+.success-msg{font-size:14px;color:var(--gray-light);line-height:1.8;margin-bottom:28px;}
+.success-link{display:inline-block;padding:12px 28px;border:1px solid var(--gold);color:var(--gold);font-size:11px;letter-spacing:.18em;text-transform:uppercase;transition:background .2s,color .2s;}
+.success-link:hover{background:var(--gold);color:#000;}
+
+.alert{padding:14px 18px;font-size:13px;line-height:1.5;display:none;}
+.alert.show{display:block;}
+.alert-error{background:rgba(212,110,110,.1);border:1px solid rgba(212,110,110,.4);color:#e8a0a0;}
+
+/* RIGHT PANEL */
+.info-panel{position:sticky;top:80px;}
+.info-card{background:var(--black-2);border:1px solid var(--gray-dark);padding:32px;}
+.info-title{font-family:var(--font-serif);font-size:20px;font-weight:500;margin-bottom:24px;}
+.info-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px;}
+.info-icon{width:36px;height:36px;border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;color:var(--gold);flex-shrink:0;}
+.info-item-title{font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px;}
+.info-item-text{font-size:12px;color:var(--gray-light);line-height:1.6;}
+.divider{height:1px;background:var(--gray-dark);margin:24px 0;}
+.process-steps{display:flex;flex-direction:column;gap:16px;}
+.step{display:flex;align-items:center;gap:12px;}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-text{font-size:13px;color:var(--white-2);}
+
+@media(max-width:900px){
+  .page-wrap{grid-template-columns:1fr;}
+  .info-panel{position:static;}
+}
+@media(max-width:600px){
+  .page-wrap{padding:40px 20px 60px;}
+  .nav-inner{padding:0 20px;}
+  .category-grid{grid-template-columns:repeat(2,1fr);}
+  .preview-grid{grid-template-columns:repeat(4,1fr);}
+  .field-row{grid-template-columns:1fr;}
+}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">N O I R E</a>
+    <a href="/collection.html" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back to Collection
+    </a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <!-- FORM -->
+  <div>
+    <div class="form-header">
+      <span class="eyebrow">— Bespoke Experience —</span>
+      <h1 class="page-title">Design <em>Your Piece</em></h1>
+      <p class="page-subtitle">
+        Tell us your vision. Upload references, describe your style, and our team
+        will respond with a quote within 24–48 hours. No commitment required.
+      </p>
+    </div>
+
+    <div class="alert alert-error" id="alert-error" role="alert"></div>
+
+    <form class="form" id="custom-form" novalidate>
+      <!-- Category -->
+      <div class="field">
+        <label>Choose Category *</label>
+        <input type="hidden" name="category" id="category-input" value="T-Shirt"/>
+        <div class="category-grid">
+          <div class="cat-pill active" data-cat="T-Shirt">
+            <span class="cat-icon">👕</span>T-Shirt
+          </div>
+          <div class="cat-pill" data-cat="Hoodie">
+            <span class="cat-icon">🧥</span>Hoodie
+          </div>
+          <div class="cat-pill" data-cat="Jacket">
+            <span class="cat-icon">🧤</span>Jacket
+          </div>
+          <div class="cat-pill" data-cat="Pants">
+            <span class="cat-icon">👖</span>Pants
+          </div>
+          <div class="cat-pill" data-cat="Set">
+            <span class="cat-icon">👔</span>Full Set
+          </div>
+          <div class="cat-pill" data-cat="Dress">
+            <span class="cat-icon">👗</span>Dress
+          </div>
+          <div class="cat-pill" data-cat="Accessories">
+            <span class="cat-icon">🎩</span>Accessories
+          </div>
+          <div class="cat-pill" data-cat="Other">
+            <span class="cat-icon">✨</span>Other
+          </div>
+        </div>
+        <span class="field-error" id="cat-err"></span>
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label>Describe Your Vision *</label>
+        <textarea name="description" id="description" placeholder="Describe colors, style, fit, fabric preferences, any special details. The more you tell us, the better we can serve you..." maxlength="2000"></textarea>
+        <span class="field-error" id="desc-err"></span>
+        <span class="field-hint">
+          <span id="desc-count">0</span>/2000 characters
+        </span>
+      </div>
+
+      <!-- Budget & Quantity -->
+      <div class="field-row">
+        <div class="field">
+          <label>Budget (Optional)</label>
+          <input type="text" name="budget" id="budget" placeholder="e.g. $200–$400"/>
+          <span class="field-hint">Helps us tailor options to you</span>
+        </div>
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" name="quantity" id="quantity" value="1" min="1" max="500"/>
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="field">
+        <label>Reference Images (Optional, max 5)</label>
+        <div class="upload-zone" id="upload-zone">
+          <svg class="upload-zone-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <div class="upload-zone-text">Drag & drop images here</div>
+          <div class="upload-zone-hint">JPG, PNG, WEBP, GIF · Max 5MB each</div>
+          <label class="upload-zone-btn" for="file-input">Choose Files</label>
+          <input type="file" id="file-input" accept="image/*" multiple/>
+        </div>
+        <div class="preview-grid" id="preview-grid"></div>
+        <div class="upload-counter" id="upload-counter"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submit-btn">
+        <span id="btn-text">Submit My Design</span>
+        <div class="spin" id="btn-spin"></div>
+      </button>
+      <p style="text-align:center;font-size:11px;color:var(--gray-light);margin-top:10px;">
+        We'll reply within 24–48 hours · Free consultation · No commitment
+      </p>
+    </form>
+
+    <!-- Success state -->
+    <div class="success-wrap" id="success-wrap">
+      <div class="success-icon">✦</div>
+      <h2 class="success-title">Request Received</h2>
+      <p class="success-msg">
+        Your design request has been submitted. Our team will review your vision
+        and reach out within 24–48 hours with ideas, questions, and a quote.<br/><br/>
+        You can track the status of your custom orders and message our designers
+        from your account dashboard.
+      </p>
+      <a href="/dashboard.html" class="success-link">View in Dashboard →</a>
+    </div>
+  </div>
+
+  <!-- RIGHT INFO PANEL -->
+  <aside class="info-panel">
+    <div class="info-card">
+      <h3 class="info-title">The Bespoke Process</h3>
+
+      <div class="process-steps">
+        <div class="step"><div class="step-num">1</div><span class="step-text">You describe your vision and upload references</span></div>
+        <div class="step"><div class="step-num">2</div><span class="step-text">Our team reviews within 24–48 hours</span></div>
+        <div class="step"><div class="step-num">3</div><span class="step-text">We send a detailed quote via your message inbox</span></div>
+        <div class="step"><div class="step-num">4</div><span class="step-text">You confirm and we begin production</span></div>
+        <div class="step"><div class="step-num">5</div><span class="step-text">Your unique piece ships in 7–14 business days</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info-item-title">Guaranteed Unique</div>
+          <div class="info-item-text">Every bespoke piece is made once — your design is never duplicated.</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info-item-title">Secure Payment</div>
+          <div class="info-item-text">Payment only after you approve the quote. No surprises.</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info-item-title">Global Shipping</div>
+          <div class="info-item-text">We ship to 48+ countries with full tracking and insurance.</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const API   = 'https://noire-backend-i2bq.onrender.com/';
+const token = localStorage.getItem('noire_token');
+const user  = JSON.parse(localStorage.getItem('noire_user') || 'null');
+
+if (!token || !user) {
+  // Redirect to login, then come back
+  window.location.href = `/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
+}
+
+/* ── Category selection ─────────────────────────────────────── */
+document.querySelectorAll('.cat-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    document.getElementById('category-input').value = pill.dataset.cat;
+  });
+});
+
+/* ── Image upload ───────────────────────────────────────────── */
+const MAX_FILES = 5;
+const MAX_SIZE  = 5 * 1024 * 1024;
+let selectedFiles = [];
+
+const zone    = document.getElementById('upload-zone');
+const fileIn  = document.getElementById('file-input');
+const preview = document.getElementById('preview-grid');
+const counter = document.getElementById('upload-counter');
+
+function updateCounter() {
+  counter.textContent = selectedFiles.length > 0
+    ? `${selectedFiles.length}/${MAX_FILES} image${selectedFiles.length > 1 ? 's' : ''} selected`
+    : '';
+}
+
+function addFiles(files) {
+  for (const file of files) {
+    if (selectedFiles.length >= MAX_FILES) { showAlert(`Maximum ${MAX_FILES} images allowed.`); break; }
+    if (file.size > MAX_SIZE) { showAlert(`"${file.name}" is too large. Max 5MB.`); continue; }
+    if (!file.type.startsWith('image/')) { showAlert(`"${file.name}" is not an image.`); continue; }
+    selectedFiles.push(file);
+  }
+  renderPreviews();
+}
+
+function renderPreviews() {
+  preview.innerHTML = selectedFiles.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    return `
+      <div class="preview-item">
+        <img src="${url}" alt="Reference ${i+1}"/>
+        <button class="preview-remove" onclick="removeFile(${i})" type="button" title="Remove">✕</button>
+      </div>`;
+  }).join('');
+  updateCounter();
+}
+
+function removeFile(idx) {
+  selectedFiles.splice(idx, 1);
+  renderPreviews();
+}
+
+fileIn.addEventListener('change', (e) => addFiles(e.target.files));
+
+zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+
+/* ── Character counter ──────────────────────────────────────── */
+document.getElementById('description').addEventListener('input', function() {
+  document.getElementById('desc-count').textContent = this.value.length;
+});
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+function showAlert(msg) {
+  const el = document.getElementById('alert-error');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+/* ── Form submit ────────────────────────────────────────────── */
+document.getElementById('custom-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const category    = document.getElementById('category-input').value;
+  const description = document.getElementById('description').value.trim();
+  const budget      = document.getElementById('budget').value.trim();
+  const quantity    = document.getElementById('quantity').value;
+
+  // Validation
+  let ok = true;
+  if (!category) {
+    document.getElementById('cat-err').textContent = 'Please select a category.';
+    ok = false;
+  } else { document.getElementById('cat-err').textContent = ''; }
+  if (description.length < 10) {
+    document.getElementById('desc-err').textContent = 'Please describe your vision (min. 10 characters).';
+    const el = document.getElementById('description');
+    el.classList.add('error');
+    ok = false;
+  } else {
+    document.getElementById('desc-err').textContent = '';
+    document.getElementById('description').classList.remove('error');
+  }
+  if (!ok) return;
+
+  // Build FormData
+  const fd = new FormData();
+  fd.append('category',    category);
+  fd.append('description', description);
+  fd.append('budget',      budget);
+  fd.append('quantity',    quantity || 1);
+  selectedFiles.forEach(f => fd.append('images', f));
+
+  // Loading
+  const btn  = document.getElementById('submit-btn');
+  const text = document.getElementById('btn-text');
+  const spin = document.getElementById('btn-spin');
+  btn.disabled  = true;
+  text.textContent = 'Submitting...';
+  spin.classList.add('show');
+
+  try {
+    const res  = await fetch(`${API}/custom-orders`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    });
+    const data = await res.json();
+
+    if (!res.ok) { showAlert(data.error || 'Submission failed. Please try again.'); return; }
+
+    // Show success
+    document.getElementById('custom-form').style.display = 'none';
+    document.querySelector('.form-header').style.display = 'none';
+    document.getElementById('alert-error').style.display = 'none';
+    document.getElementById('success-wrap').style.display = 'block';
+
+  } catch (err) {
+    showAlert('Network error. Please check your connection.');
+  } finally {
+    btn.disabled = false;
+    text.textContent = 'Submit My Design';
+    spin.classList.remove('show');
+  }
+});
+
+// Handle redirect from login
+const params = new URLSearchParams(window.location.search);
+if (params.get('redirect')) {
+  localStorage.setItem('post_login_redirect', params.get('redirect'));
+}
+</script>
+</body>
+</html>

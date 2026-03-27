@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOIRE — Wear Your Identity</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Elegant Serif: Playfair Display | Clean Sans: DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div id="loader">
+    <div class="loader-inner">
+      <span class="loader-brand">N O I R E</span>
+      <div class="loader-line"></div>
+    </div>
+  </div>
+
+  <!-- ========== CURSOR ========== -->
+  <div id="custom-cursor">
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+  </div>
+
+  <!-- ========== CART DRAWER ========== -->
+  <div id="cart-overlay"></div>
+  <aside id="cart-drawer" aria-label="Shopping Cart">
+    <div class="cart-header">
+      <h3 class="cart-title">Your Selection</h3>
+      <button id="cart-close" aria-label="Close cart">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <line x1="2" y1="2" x2="18" y2="18" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="2" x2="2" y2="18" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+    <div id="cart-items" class="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cart-total-price">$0.00</span>
+      </div>
+      <button class="btn-checkout" id="btn-checkout">Proceed to Checkout</button>
+      <p class="cart-note">Free shipping on orders over $200 · Secure checkout</p>
+    </div>
+  </aside>
+
+  <!-- ========== CHECKOUT MODAL ========== -->
+  <div id="checkout-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:950;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:20px;">
+    <div id="checkout-modal" style="background:#111;border:1px solid #242424;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border-bottom:1px solid #242424;">
+        <h3 style="font-family:'Playfair Display',serif;font-size:20px;font-weight:500;">Complete Your Order</h3>
+        <button id="checkout-close" style="background:none;border:none;color:#8a8a8a;cursor:pointer;padding:4px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div style="padding:28px;">
+        <div id="checkout-guest-msg" style="display:none;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);padding:14px 18px;margin-bottom:22px;font-size:13px;color:#e8c878;">
+          Please <a href="/login.html" style="color:#c9a84c;text-decoration:underline;">sign in</a> or <a href="/signup.html" style="color:#c9a84c;text-decoration:underline;">create an account</a> to place your order.
+        </div>
+        <form id="checkout-form" novalidate style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a;">Full Name *</label>
+            <input type="text" id="co-name" placeholder="Your full name" autocomplete="name"
+              style="background:#1a1a1a;border:1px solid #242424;color:#f5f5f0;padding:13px 14px;font-size:14px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;"/>
+            <span style="font-size:11px;color:#d46e6e;min-height:14px;" id="co-name-err"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a;">Email Address *</label>
+            <input type="email" id="co-email" placeholder="your@email.com" autocomplete="email"
+              style="background:#1a1a1a;border:1px solid #242424;color:#f5f5f0;padding:13px 14px;font-size:14px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;"/>
+            <span style="font-size:11px;color:#d46e6e;min-height:14px;" id="co-email-err"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a;">Shipping Address *</label>
+            <textarea id="co-address" placeholder="Street address, city, postal code, country" rows="3" autocomplete="shipping street-address"
+              style="background:#1a1a1a;border:1px solid #242424;color:#f5f5f0;padding:13px 14px;font-size:14px;outline:none;resize:vertical;transition:border-color .2s;font-family:'DM Sans',sans-serif;"></textarea>
+            <span style="font-size:11px;color:#d46e6e;min-height:14px;" id="co-addr-err"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <label style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a;">Order Notes (optional)</label>
+            <input type="text" id="co-notes" placeholder="Size preferences, special requests..."
+              style="background:#1a1a1a;border:1px solid #242424;color:#f5f5f0;padding:13px 14px;font-size:14px;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;"/>
+          </div>
+          <div id="co-order-summary" style="background:#0f0f0f;border:1px solid #1a1a1a;padding:16px;margin-top:4px;">
+            <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8a8a;margin-bottom:12px;">Order Summary</div>
+            <div id="co-summary-items" style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#e8e8e0;margin-bottom:12px;"></div>
+            <div style="border-top:1px solid #1a1a1a;padding-top:12px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8a8a8a;">Total</span>
+              <span id="co-total" style="font-family:'Playfair Display',serif;font-size:20px;color:#c9a84c;"></span>
+            </div>
+          </div>
+          <button type="submit" id="co-submit" style="width:100%;padding:18px;background:#f5f5f0;color:#0a0a0a;border:none;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s;font-family:'DM Sans',sans-serif;">
+            <span id="co-submit-text">Place Order</span>
+            <div id="co-spin" style="display:none;width:16px;height:16px;border:2px solid rgba(10,10,10,.2);border-top-color:#0a0a0a;border-radius:50%;animation:spin .6s linear infinite;"></div>
+          </button>
+        </form>
+        <div id="co-success" style="display:none;text-align:center;padding:30px 0;">
+          <div style="font-size:42px;margin-bottom:16px;">✓</div>
+          <h4 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:10px;color:#c9a84c;">Order Confirmed</h4>
+          <p style="font-size:14px;color:#8a8a8a;line-height:1.7;">Thank you for your order. You'll receive a confirmation and can track your status in your <a href="/dashboard.html" style="color:#c9a84c;">account dashboard</a>.</p>
+        </div>
+        <div id="co-error-msg" style="display:none;background:rgba(212,110,110,.1);border:1px solid rgba(212,110,110,.3);padding:14px;margin-top:12px;font-size:13px;color:#e8a0a0;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TOAST NOTIFICATION ========== -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav id="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo" aria-label="NOIRE home">
+        <span class="logo-text">N O I R E</span>
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="#collection" class="nav-link">Collection</a></li>
+        <li><a href="#custom" class="nav-link">Bespoke</a></li>
+        <li><a href="#story" class="nav-link">Story</a></li>
+        <li><a href="#testimonials" class="nav-link">Reviews</a></li>
+      </ul>
+      <div class="nav-actions">
+        <!-- Auth links — toggled by JS based on login state -->
+        <div id="nav-auth-guest" style="display:none; align-items:center; gap:14px;">
+          <a href="/login.html" class="nav-link" style="font-size:11px;letter-spacing:.18em;">Sign In</a>
+          <a href="/signup.html" class="nav-link nav-link-cta" style="font-size:11px;letter-spacing:.18em;color:var(--gold);">Join</a>
+        </div>
+        <div id="nav-auth-user" style="display:none; align-items:center; gap:14px;">
+          <a href="/dashboard.html" class="nav-link" style="font-size:11px;letter-spacing:.15em;" id="nav-user-name">Account</a>
+        </div>
+        <button id="cart-btn" class="nav-cart" aria-label="Open cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span id="cart-count" class="cart-badge" aria-label="Cart items count">0</span>
+        </button>
+        <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+      <ul>
+        <li><a href="#collection" class="mobile-link">Collection</a></li>
+        <li><a href="#custom" class="mobile-link">Bespoke</a></li>
+        <li><a href="#story" class="mobile-link">Story</a></li>
+        <li><a href="#testimonials" class="mobile-link">Reviews</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ========== ANNOUNCEMENT BAR ========== -->
+  <div class="announcement-bar">
+    <div class="announcement-track">
+      <span>Free Worldwide Shipping on Orders $200+</span>
+      <span class="dot">·</span>
+      <span>New Drop: Autumn Couture Collection — Available Now</span>
+      <span class="dot">·</span>
+      <span>Custom Orders Ship in 7–14 Business Days</span>
+      <span class="dot">·</span>
+      <span>Free Worldwide Shipping on Orders $200+</span>
+      <span class="dot">·</span>
+      <span>New Drop: Autumn Couture Collection — Available Now</span>
+      <span class="dot">·</span>
+      <span>Custom Orders Ship in 7–14 Business Days</span>
+    </div>
+  </div>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section id="hero" class="hero" role="banner">
+    <div class="hero-bg">
+      <!-- Geometric decorative overlays -->
+      <div class="hero-overlay-top"></div>
+      <div class="hero-overlay-bottom"></div>
+      <div class="hero-grid-lines"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow reveal-text">
+        <span class="eyebrow-line"></span>
+        <span>2025 Haute Collection</span>
+        <span class="eyebrow-line"></span>
+      </div>
+
+      <h1 class="hero-headline">
+        <span class="headline-line line-1">Dress Like</span>
+        <span class="headline-line line-2"><em>The Legend</em></span>
+        <span class="headline-line line-3">You Are</span>
+      </h1>
+
+      <p class="hero-subheadline reveal-text">
+        Ultra-premium streetwear for those who refuse to be ordinary.<br/>
+        <span class="sub-accent">Crafted for the few. Coveted by all.</span>
+      </p>
+
+      <div class="hero-cta reveal-text">
+        <a href="#collection" class="btn-primary">
+          <span>Explore Collection</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="#custom" class="btn-ghost">Design Yours</a>
+      </div>
+
+      <div class="hero-stats reveal-text">
+        <div class="stat">
+          <span class="stat-num">12K+</span>
+          <span class="stat-label">Clients Worldwide</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">7</span>
+          <span class="stat-label">Years of Craft</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">Premium Materials</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-image-frame">
+      <div class="hero-image-inner">
+        <!-- Premium gradient placeholder mimicking dark editorial fashion photography -->
+        <div class="hero-img-placeholder">
+          <div class="placeholder-silhouette"></div>
+          <div class="placeholder-glow"></div>
+        </div>
+        <div class="hero-img-badge">
+          <span>Limited Edition</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll-cue" aria-hidden="true">
+      <span class="scroll-label">Scroll</span>
+      <div class="scroll-line">
+        <div class="scroll-dot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TRUST BAR ========== -->
+  <section class="trust-bar" aria-label="Trust indicators">
+    <div class="trust-container">
+      <div class="trust-item reveal-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Certified Premium Materials</span>
+      </div>
+      <div class="trust-sep" aria-hidden="true"></div>
+      <div class="trust-item reveal-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        <span>Secure Encrypted Payments</span>
+      </div>
+      <div class="trust-sep" aria-hidden="true"></div>
+      <div class="trust-item reveal-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+        </svg>
+        <span>30-Day Hassle-Free Returns</span>
+      </div>
+      <div class="trust-sep" aria-hidden="true"></div>
+      <div class="trust-item reveal-item">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+        <span>Global Express Delivery</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURED COLLECTION ========== -->
+  <section id="collection" class="collection" aria-label="Featured Collection">
+    <div class="section-header reveal-item">
+      <span class="section-eyebrow">— Curated Drops —</span>
+      <h2 class="section-title">Featured Collection</h2>
+      <p class="section-subtitle">Each piece is a statement. Each drop is limited.</p>
+    </div>
+
+    <div class="products-grid" id="products-grid">
+
+      <!-- Product 1 -->
+      <article class="product-card reveal-item" data-id="1" data-name="Obsidian Oversized Tee" data-price="129">
+        <div class="product-image">
+          <div class="product-img-placeholder p1">
+            <div class="product-silhouette tee"></div>
+          </div>
+          <div class="product-badges">
+            <span class="badge-limited">Limited Drop</span>
+          </div>
+          <div class="product-hover-overlay">
+            <button class="btn-add-to-cart" data-id="1" data-name="Obsidian Oversized Tee" data-price="129" aria-label="Add Obsidian Oversized Tee to cart">
+              Add to Cart
+            </button>
+            <button class="btn-quick-view" aria-label="Quick view Obsidian Oversized Tee">Quick View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="product-category">Premium Tee</span>
+            <span class="stock-indicator low">
+              <span class="stock-dot"></span> Only 4 left
+            </span>
+          </div>
+          <h3 class="product-name">Obsidian Oversized Tee</h3>
+          <div class="product-price-row">
+            <span class="product-price">$129</span>
+            <div class="product-stars" aria-label="Rated 5 stars">★★★★★</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 2 -->
+      <article class="product-card reveal-item" data-id="2" data-name="Noir Signature Hoodie" data-price="249">
+        <div class="product-image featured">
+          <div class="product-img-placeholder p2">
+            <div class="product-silhouette hoodie"></div>
+          </div>
+          <div class="product-badges">
+            <span class="badge-new">New Season</span>
+            <span class="badge-bestseller">Bestseller</span>
+          </div>
+          <div class="product-hover-overlay">
+            <button class="btn-add-to-cart" data-id="2" data-name="Noir Signature Hoodie" data-price="249" aria-label="Add Noir Signature Hoodie to cart">
+              Add to Cart
+            </button>
+            <button class="btn-quick-view" aria-label="Quick view Noir Signature Hoodie">Quick View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="product-category">Signature Hoodie</span>
+            <span class="stock-indicator">
+              <span class="stock-dot ok"></span> In Stock
+            </span>
+          </div>
+          <h3 class="product-name">Noir Signature Hoodie</h3>
+          <div class="product-price-row">
+            <span class="product-price">$249</span>
+            <div class="product-stars" aria-label="Rated 5 stars">★★★★★</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 3 -->
+      <article class="product-card reveal-item" data-id="3" data-name="Phantom Cargo Set" data-price="389">
+        <div class="product-image">
+          <div class="product-img-placeholder p3">
+            <div class="product-silhouette cargo"></div>
+          </div>
+          <div class="product-badges">
+            <span class="badge-limited">Exclusive</span>
+          </div>
+          <div class="product-hover-overlay">
+            <button class="btn-add-to-cart" data-id="3" data-name="Phantom Cargo Set" data-price="389" aria-label="Add Phantom Cargo Set to cart">
+              Add to Cart
+            </button>
+            <button class="btn-quick-view" aria-label="Quick view Phantom Cargo Set">Quick View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="product-category">Streetwear Set</span>
+            <span class="stock-indicator low">
+              <span class="stock-dot"></span> Only 2 left
+            </span>
+          </div>
+          <h3 class="product-name">Phantom Cargo Set</h3>
+          <div class="product-price-row">
+            <span class="product-price">$389</span>
+            <div class="product-stars" aria-label="Rated 4.8 stars">★★★★★</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Product 4 -->
+      <article class="product-card reveal-item" data-id="4" data-name="Gold Edition Bomber" data-price="459">
+        <div class="product-image">
+          <div class="product-img-placeholder p4">
+            <div class="product-silhouette bomber"></div>
+          </div>
+          <div class="product-badges">
+            <span class="badge-gold">Gold Edition</span>
+          </div>
+          <div class="product-hover-overlay">
+            <button class="btn-add-to-cart" data-id="4" data-name="Gold Edition Bomber" data-price="459" aria-label="Add Gold Edition Bomber to cart">
+              Add to Cart
+            </button>
+            <button class="btn-quick-view" aria-label="Quick view Gold Edition Bomber">Quick View</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-meta">
+            <span class="product-category">Luxury Bomber</span>
+            <span class="stock-indicator low">
+              <span class="stock-dot"></span> Only 3 left
+            </span>
+          </div>
+          <h3 class="product-name">Gold Edition Bomber</h3>
+          <div class="product-price-row">
+            <span class="product-price">$459</span>
+            <div class="product-stars" aria-label="Rated 5 stars">★★★★★</div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="collection-cta reveal-item">
+      <a href="#" class="btn-outline">View Full Collection</a>
+    </div>
+  </section>
+
+  <!-- ========== MARQUEE BAND ========== -->
+  <div class="marquee-band" aria-hidden="true">
+    <div class="marquee-track">
+      <span>PREMIUM CRAFTSMANSHIP</span><span class="marquee-dot">✦</span>
+      <span>LIMITED EDITIONS</span><span class="marquee-dot">✦</span>
+      <span>LUXURY STREETWEAR</span><span class="marquee-dot">✦</span>
+      <span>YOUR IDENTITY</span><span class="marquee-dot">✦</span>
+      <span>NOIRE 2025</span><span class="marquee-dot">✦</span>
+      <span>PREMIUM CRAFTSMANSHIP</span><span class="marquee-dot">✦</span>
+      <span>LIMITED EDITIONS</span><span class="marquee-dot">✦</span>
+      <span>LUXURY STREETWEAR</span><span class="marquee-dot">✦</span>
+      <span>YOUR IDENTITY</span><span class="marquee-dot">✦</span>
+      <span>NOIRE 2025</span><span class="marquee-dot">✦</span>
+    </div>
+  </div>
+
+  <!-- ========== CUSTOM DESIGN SECTION ========== -->
+  <section id="custom" class="custom-section" aria-label="Custom Design">
+    <div class="custom-inner">
+      <div class="custom-visual reveal-item">
+        <div class="custom-canvas">
+          <div class="canvas-glow"></div>
+          <div class="canvas-tee">
+            <svg viewBox="0 0 200 240" class="tee-svg" aria-hidden="true">
+              <path d="M40 30 L0 70 L30 80 L30 230 L170 230 L170 80 L200 70 L160 30 L130 50 Q100 65 70 50 Z" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <circle cx="100" cy="135" r="30" fill="none" stroke="var(--gold-light)" stroke-width="0.8" opacity="0.5"/>
+              <text x="100" y="130" text-anchor="middle" font-family="Playfair Display" font-size="9" fill="var(--gold)" opacity="0.7">YOUR</text>
+              <text x="100" y="143" text-anchor="middle" font-family="Playfair Display" font-size="9" fill="var(--gold)" opacity="0.7">DESIGN</text>
+            </svg>
+          </div>
+          <div class="canvas-tools">
+            <div class="tool-swatch swatch-black active"></div>
+            <div class="tool-swatch swatch-white"></div>
+            <div class="tool-swatch swatch-gold"></div>
+            <div class="tool-swatch swatch-cream"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-content reveal-item">
+        <span class="section-eyebrow">— Bespoke Experience —</span>
+        <h2 class="custom-title">
+          Your Style,<br/>
+          <em>Your Statement</em>
+        </h2>
+        <p class="custom-body">
+          Every NOIRE custom piece begins as a conversation — your vision, our craft. 
+          From embroidered logos to hand-finished details, we translate identity into fabric. 
+          This is not clothing. This is signature.
+        </p>
+
+        <ul class="custom-features" role="list">
+          <li class="custom-feature reveal-item">
+            <div class="feature-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <div>
+              <strong>Designed by You</strong>
+              <span>Choose materials, colors, cuts, and embellishments</span>
+            </div>
+          </li>
+          <li class="custom-feature reveal-item">
+            <div class="feature-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <strong>7–14 Day Turnaround</strong>
+              <span>Premium crafting with dedicated quality checks</span>
+            </div>
+          </li>
+          <li class="custom-feature reveal-item">
+            <div class="feature-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+              </svg>
+            </div>
+            <div>
+              <strong>Guaranteed Unique</strong>
+              <span>Your piece is one-of-a-kind — we never duplicate</span>
+            </div>
+          </li>
+        </ul>
+
+        <a href="#contact" class="btn-primary gold-btn">
+          <span>Start Designing</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BRAND STORY ========== -->
+  <section id="story" class="story-section" aria-label="Brand Story">
+    <div class="story-inner">
+      <div class="story-content reveal-item">
+        <span class="section-eyebrow">— Our Ethos —</span>
+        <h2 class="story-title">
+          Born from<br/>
+          <em>Obsession</em>
+        </h2>
+        <blockquote class="story-quote">
+          "We did not set out to build a clothing brand.<br/>
+          We set out to build armor for the ambitious."
+        </blockquote>
+        <p class="story-body">
+          NOIRE was founded in 2018 by two designers who rejected the idea that luxury 
+          had to mean inaccessible, and that streetwear had to mean disposable. 
+          We chose a third path: <em>elevated everyday wear</em>.
+        </p>
+        <p class="story-body">
+          Every stitch is inspected. Every drop is deliberate. Every customer becomes 
+          part of an exclusive community of people who believe what you wear 
+          shapes how you move through the world.
+        </p>
+        <a href="#" class="link-underline">Read the full story →</a>
+      </div>
+
+      <div class="story-visual reveal-item">
+        <div class="story-img-wrap">
+          <div class="story-img-placeholder">
+            <div class="story-img-overlay"></div>
+            <div class="story-label">
+              <span>Est. 2018</span>
+              <span>Paris · New York · Tokyo</span>
+            </div>
+          </div>
+          <div class="story-accent-box"></div>
+        </div>
+        <div class="story-numbers">
+          <div class="story-stat reveal-item">
+            <span class="snum">12K+</span>
+            <span class="slabel">Happy Clients</span>
+          </div>
+          <div class="story-stat reveal-item">
+            <span class="snum">48</span>
+            <span class="slabel">Countries Reached</span>
+          </div>
+          <div class="story-stat reveal-item">
+            <span class="snum">4.9</span>
+            <span class="slabel">Avg. Rating</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SOCIAL PROOF ========== -->
+  <section id="testimonials" class="testimonials-section" aria-label="Customer Reviews">
+    <div class="section-header reveal-item">
+      <span class="section-eyebrow">— What They Say —</span>
+      <h2 class="section-title">Trusted by Thousands</h2>
+      <div class="trust-aggregate">
+        <div class="agg-stars">★★★★★</div>
+        <span class="agg-score">4.9 / 5</span>
+        <span class="agg-count">from 3,200+ verified reviews</span>
+      </div>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal-item">
+        <div class="t-avatar" aria-hidden="true">
+          <div class="avatar-placeholder av1">J</div>
+        </div>
+        <div class="t-stars" aria-label="5 stars">★★★★★</div>
+        <blockquote class="t-quote">
+          "I've worn luxury brands all my life. NOIRE is the first streetwear 
+          label that genuinely rivals them in quality. The Signature Hoodie is 
+          nothing short of extraordinary."
+        </blockquote>
+        <div class="t-author">
+          <strong>James Achebe</strong>
+          <span>Verified Buyer · Lagos</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal-item featured-testimonial">
+        <div class="t-avatar" aria-hidden="true">
+          <div class="avatar-placeholder av2">S</div>
+        </div>
+        <div class="t-stars" aria-label="5 stars">★★★★★</div>
+        <blockquote class="t-quote">
+          "My custom hoodie arrived in 10 days. The attention to detail was 
+          unreal — every embroidery, every stitch, perfect. People ask me 
+          where I got it every single day."
+        </blockquote>
+        <div class="t-author">
+          <strong>Sofia Marchetti</strong>
+          <span>Verified Buyer · Milan</span>
+        </div>
+      </div>
+
+      <div class="testimonial-card reveal-item">
+        <div class="t-avatar" aria-hidden="true">
+          <div class="avatar-placeholder av3">R</div>
+        </div>
+        <div class="t-stars" aria-label="5 stars">★★★★★</div>
+        <blockquote class="t-quote">
+          "The Gold Edition Bomber is a masterpiece. It's the kind of piece 
+          that makes a room go quiet when you walk in. NOIRE understands 
+          what fashion is supposed to do."
+        </blockquote>
+        <div class="t-author">
+          <strong>Rafael Diaz</strong>
+          <span>Verified Buyer · Miami</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust logos -->
+    <div class="trust-logos reveal-item" aria-label="As featured in">
+      <span class="trust-logos-label">As featured in</span>
+      <div class="logos-row">
+        <span class="press-logo">Vogue</span>
+        <span class="press-logo">Hypebeast</span>
+        <span class="press-logo">GQ</span>
+        <span class="press-logo">Complex</span>
+        <span class="press-logo">Highsnobiety</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT / CUSTOM ORDER FORM ========== -->
+  <section id="contact" class="contact-section" aria-label="Start your custom order">
+    <div class="contact-inner">
+      <div class="contact-content reveal-item">
+        <span class="section-eyebrow">— Begin Your Journey —</span>
+        <h2 class="contact-title">Own Your<br/><em>Identity</em></h2>
+        <p class="contact-body">
+          Ready to wear something that is entirely, unapologetically you? 
+          Start with a message. Our design team will respond within 24 hours.
+        </p>
+        <div class="contact-promise">
+          <div class="promise-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>No commitment required</span>
+          </div>
+          <div class="promise-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Free consultation</span>
+          </div>
+          <div class="promise-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>Response within 24 hours</span>
+          </div>
+        </div>
+      </div>
+
+      <form id="contact-form" class="contact-form reveal-item" novalidate aria-label="Custom order inquiry form">
+        <div class="form-group">
+          <label for="fname">Full Name</label>
+          <input type="text" id="fname" name="fname" placeholder="Your name" autocomplete="name" />
+          <span class="field-error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" />
+          <span class="field-error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label for="interest">I'm interested in</label>
+          <select id="interest" name="interest">
+            <option value="">Select a category...</option>
+            <option value="custom-tee">Custom T-Shirt</option>
+            <option value="custom-hoodie">Custom Hoodie</option>
+            <option value="custom-set">Custom Full Set</option>
+            <option value="ready-to-wear">Ready-to-Wear Collection</option>
+            <option value="bulk">Bulk / Brand Order</option>
+          </select>
+          <span class="field-error" role="alert"></span>
+        </div>
+        <div class="form-group">
+          <label for="message">Your Vision</label>
+          <textarea id="message" name="message" rows="4" placeholder="Describe your dream piece..."></textarea>
+          <span class="field-error" role="alert"></span>
+        </div>
+        <button type="submit" class="btn-primary form-submit" id="form-submit-btn">
+          <span class="btn-text">Send My Vision</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+        </button>
+        <p class="form-privacy">Your information is private and never shared.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========== FINAL CTA BAND ========== -->
+  <section class="final-cta" aria-label="Final call to action">
+    <div class="final-cta-inner reveal-item">
+      <h2 class="final-cta-title">
+        The World Notices<br/>
+        <em>What You Wear.</em>
+      </h2>
+      <p class="final-cta-sub">Make it worth noticing.</p>
+      <div class="final-cta-btns">
+        <a href="#collection" class="btn-primary">Shop Now</a>
+        <a href="#custom" class="btn-ghost">Build Custom</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-logo">N O I R E</span>
+        <p class="footer-tagline">Wear Your Identity</p>
+        <div class="footer-socials">
+          <a href="#" class="social-link" aria-label="NOIRE on Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="#" class="social-link" aria-label="NOIRE on TikTok">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/>
+            </svg>
+          </a>
+          <a href="#" class="social-link" aria-label="NOIRE on Pinterest">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2C6.48 2 2 6.48 2 12c0 4.24 2.65 7.86 6.39 9.29-.09-.78-.17-1.98.04-2.83.18-.77 1.22-5.17 1.22-5.17s-.31-.62-.31-1.55c0-1.45.84-2.54 1.89-2.54.89 0 1.32.67 1.32 1.48 0 .9-.57 2.25-.87 3.5-.25 1.04.52 1.88 1.54 1.88 1.85 0 3.1-2.37 3.1-5.17 0-2.14-1.44-3.63-3.5-3.63-2.38 0-3.78 1.79-3.78 3.63 0 .72.28 1.49.62 1.91.07.08.08.16.06.24l-.23.95c-.04.14-.12.17-.28.1-1.02-.47-1.65-1.96-1.65-3.16 0-2.57 1.87-4.93 5.38-4.93 2.83 0 5.03 2.01 5.03 4.7 0 2.8-1.76 5.05-4.21 5.05-.82 0-1.6-.43-1.86-.93l-.51 1.9c-.18.71-.68 1.59-1.02 2.13.77.24 1.59.37 2.43.37 5.52 0 10-4.48 10-10S17.52 2 12 2z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <h4 class="footer-col-title">Shop</h4>
+        <ul>
+          <li><a href="#collection">All Products</a></li>
+          <li><a href="#collection">T-Shirts</a></li>
+          <li><a href="#collection">Hoodies</a></li>
+          <li><a href="#collection">Streetwear Sets</a></li>
+          <li><a href="#collection">Bombers</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links-group">
+        <h4 class="footer-col-title">Bespoke</h4>
+        <ul>
+          <li><a href="#custom">Custom Tees</a></li>
+          <li><a href="#custom">Custom Hoodies</a></li>
+          <li><a href="#custom">Bulk Orders</a></li>
+          <li><a href="#custom">Brand Collaborations</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-newsletter">
+        <h4 class="footer-col-title">Join the Inner Circle</h4>
+        <p>Get early access to drops, private sales, and exclusive content.</p>
+        <form id="newsletter-form" class="newsletter-form" novalidate aria-label="Newsletter signup">
+          <input type="email" id="newsletter-email" placeholder="Enter your email" autocomplete="email" aria-label="Email address for newsletter" />
+          <button type="submit" aria-label="Subscribe to newsletter">→</button>
+        </form>
+        <span id="newsletter-msg" class="newsletter-msg" role="status" aria-live="polite"></span>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2025 NOIRE. All Rights Reserved.</span>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Shipping Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <style>
+    /* Checkout input focus state */
+    #checkout-modal input:focus, #checkout-modal textarea:focus {
+      border-color: #c9a84c !important;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</body>
+</html>
