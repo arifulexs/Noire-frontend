@@ -36,7 +36,7 @@
  * After deploying to Render + Vercel, change this one line:
  *   const API = 'https://YOUR-APP-NAME.onrender.com/api';
  */
-const API   = '/api';
+const API   = 'https://noire-backend-i2bq.onrender.com/';
 const TOKEN = () => localStorage.getItem('noire_token');
 const USER  = () => { try { return JSON.parse(localStorage.getItem('noire_user') || 'null'); } catch { return null; } };
 
