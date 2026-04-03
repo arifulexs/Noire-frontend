@@ -91,7 +91,7 @@
    LOGIN PAGE SCRIPT
 ═══════════════════════════════════════ */
 
-const API = 'https://noire-backend-i2bq.onrender.com/';
+const API = '/api';
 
 /* ── Redirect if already logged in ─────────────────────────── */
 (function checkAuth() {
@@ -190,6 +190,14 @@ form.addEventListener('submit', async (e) => {
     showAlert(alertSuccess, `Welcome back, ${data.user.name}! Redirecting...`);
 
     setTimeout(() => {
+      // Check if we were sent here from a protected page
+      const postRedirect = localStorage.getItem('post_login_redirect');
+      if (postRedirect) {
+        localStorage.removeItem('post_login_redirect');
+        window.location.href = postRedirect;
+        return;
+      }
+      // Default redirect: admin → admin panel, users → dashboard
       window.location.href = data.user.role === 'admin' ? '/admin.html' : '/dashboard.html';
     }, 900);
 
